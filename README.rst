@@ -1,8 +1,6 @@
-@@@@@@@@@@@@
-easy-as-pypi
-@@@@@@@@@@@@
-
-.. FEAT-REQU/2020-01-25: (lb): Add kcov Bash coverage of the release script.
+@@@@@@@@@@@@@@@@@@@
+easy-as-pypi-getver
+@@@@@@@@@@@@@@@@@@@
 
 .. .. image:: https://travis-ci.com/landonb/easy-as-pypi.svg?branch=develop
 ..   :target: https://travis-ci.com/landonb/easy-as-pypi
@@ -28,28 +26,9 @@ easy-as-pypi
   :target: https://github.com/landonb/easy-as-pypi/blob/release/LICENSE
   :alt: License Status
 
-One dev's boilerplate PyPI project.
+Determine package version from what pip last installed and what Git says.
 
 .. Install with ``pip``::
 ..
-..     pip3 install easy-as-pypi
-
-########
-Overview
-########
-
-This project contains Python project boilerplate
-for your next CLI project.
-
-.. FIXME/2020-12-13: Enumerate contents, and add links.
-Includes Click, config-decorator, app_dirs, etc.
-
-See ``bin/clone-and-rebrand-easy-as-pypi.sh`` for automatically
-generating a new PyPI-ready project from this repository.
-
-You'll need to diff some files against this project to stay current
-with some of the boilerplate (like setup.py, tox.ini, etc.), but
-those files rarely change, and most functionality is included by
-way of PyPI dependencies, which you can easily keep up to date with
-CI tools (like requires.io).
+..     pip3 install easy-as-pypi-getver
 

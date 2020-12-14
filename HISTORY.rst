@@ -10,10 +10,10 @@ History
 
 .. :changelog:
 
-1.0.0 (2020-01-25)
+1.0.0 (2020-12-20)
 ==================
 
 - Initial public release.
 
-- Project originated to maintain common PyPI reference for |dob|_, |nark|_, et al.
+- Project split from |dob|_, |nark|_, et al.
 

@@ -1,11 +1,11 @@
-####################
+###########################
 easy_as_pypi_getver package
-####################
+###########################
 
 Module Contents
 ---------------
 
-.. (lb): This is *not* a generated file like easy_as_pypi_getver.rst (or modules.rst, etc.).
+.. (lb): This file is *not* generated like easy_as_pypi_getver.rst, modules.rst, etc.
 ..
 ..       Rather, this file was copyied from a generated docs/easy_as_pypi_getver.rst
 ..       and altered with additional options.
