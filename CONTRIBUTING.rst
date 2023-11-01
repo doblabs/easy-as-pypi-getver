@@ -1,12 +1,13 @@
 ############
 Contributing
 ############
+.. vim:tw=0:ts=2:sw=2:et:norl:nospell:ft=rst
 
-.. |easy-as-pypi-getver| replace:: ``easy-as-pypi-getver``
-.. _easy-as-pypi-getver: https://github.com/tallybark/easy-as-pypi-getver
+.. |easy-as-pypi| replace:: ``easy-as-pypi-getver``
+.. _easy-as-pypi: https://github.com/doblabs/easy-as-pypi
 
 .. |user-docs| replace:: user documentation
-.. _user-docs: https://github.com/tallybark/easy-as-pypi-getver/tree/release/docs
+.. _user-docs: https://github.com/doblabs/easy-as-pypi/tree/release/docs
 
 .. |envlist| replace:: ``envlist``
 .. _envlist: https://tox.readthedocs.io/en/latest/config.html#conf-envlist
@@ -55,7 +56,7 @@ You can contribute in many ways:
 Report Bugs
 -----------
 
-Report bugs at https://github.com/tallybark/easy-as-pypi-getver/issues.
+Report bugs at https://github.com/doblabs/easy-as-pypi/issues.
 
 When reporting a bug, please include:
 
@@ -85,9 +86,9 @@ us to improve it.
 
 This includes the official |user-docs|_,
 the `README
-<https://github.com/tallybark/easy-as-pypi-getver/blob/release/README.rst>`__,
+<https://github.com/doblabs/easy-as-pypi/blob/release/README.rst>`__,
 and the inline docstrings that generate the `API documentation
-<https://easy-as-pypi-getver.readthedocs.io/en/latest/modules.html>`__
+<https://easy-as-pypi.readthedocs.io/en/latest/modules.html>`__
 (per |PEP-257|_ and |goog-py-sty|_).
 
 We also appreciate reference from blog posts, articles, and other projects.
@@ -96,7 +97,7 @@ Submit Feedback
 ---------------
 
 The best way to send feedback is to file an issue at
-https://github.com/tallybark/easy-as-pypi-getver/issues.
+https://github.com/doblabs/easy-as-pypi/issues.
 
 See above for reporting bugs.
 
@@ -120,12 +121,12 @@ questions or concerns. Response times may vary depending on season.
 Getting Started
 ===============
 
-Ready to contribute? Here's how to set up |easy-as-pypi-getver|_
+Ready to contribute? Here's how to set up |easy-as-pypi|_
 for local development.
 
-1. Fork the |easy-as-pypi-getver|_ repo on GitHub.
+1. Fork the |easy-as-pypi|_ repo on GitHub.
 
-   * Visit `<https://github.com/tallybark/easy-as-pypi-getver>`__
+   * Visit `<https://github.com/doblabs/easy-as-pypi>`__
      and click *Fork*.
 
 2. Clone your fork locally.
@@ -133,51 +134,51 @@ for local development.
    Open a local terminal, change to a directory you'd like to develop from,
    and run the command::
 
-    $ git clone git@github.com:<your_login>/easy-as-pypi-getver.git
+    $ git clone git@github.com:<your_login>/easy-as-pypi.git
 
-3. Install |easy-as-pypi-getver|_ into a Python virtual instance,
+3. Install |easy-as-pypi|_ into a Python virtual instance,
    or |virtualenv|_.
 
    First, ensure that you have |virtualenvwrapper|_ installed.
 
    Next, set up a virtual environment for local development::
 
-    $ cd easy-as-pypi-getver/
-    $ mkvirtualenv -a $(pwd) easy-as-pypi-getver
-    (easy-as-pypi-getver) $
+    $ cd easy-as-pypi/
+    $ mkvirtualenv -a $(pwd) easy-as-pypi
+    (easy-as-pypi) $
 
    *Note:* We use the ``-a`` option so that ``cdproject`` changes directories
-   to the ``easy-as-pypi-getver/`` directory when we're in the virtual
+   to the ``easy-as-pypi/`` directory when we're in the virtual
    environment.
 
    Next, set up your fork for local development::
 
-    (easy-as-pypi-getver) $ cdproject
-    (easy-as-pypi-getver) $ make develop
+    (easy-as-pypi) $ cdproject
+    (easy-as-pypi) $ make develop
 
    *Hint:* As usual, run ``workon`` to activate the virtual environment, and
    ``deactivate`` to leave it. E.g.,::
 
     # Load the Python virtual instance.
-    $ workon easy-as-pypi-getver
-    (easy-as-pypi-getver) $
+    $ workon easy-as-pypi
+    (easy-as-pypi) $
 
     # Do your work.
-    (easy-as-pypi-getver) $ ...
+    (easy-as-pypi) $ ...
 
     # Finish up.
-    (easy-as-pypi-getver) $ deactivate
+    (easy-as-pypi) $ deactivate
     $
 
 4. Before starting work on a new feature or bug fix, make sure your
    ``develop`` branch is up to date with the official branch::
 
-    (easy-as-pypi-getver) $ cdproject
-    (easy-as-pypi-getver) $ git remote add upstream git@github.com:tallybark/easy-as-pypi-getver.git
-    (easy-as-pypi-getver) $ git fetch upstream
-    (easy-as-pypi-getver) $ git checkout develop
-    (easy-as-pypi-getver) $ git rebase upstream/develop
-    (easy-as-pypi-getver) $ git push origin HEAD
+    (easy-as-pypi) $ cdproject
+    (easy-as-pypi) $ git remote add upstream git@github.com:doblabs/easy-as-pypi.git
+    (easy-as-pypi) $ git fetch upstream
+    (easy-as-pypi) $ git checkout develop
+    (easy-as-pypi) $ git rebase upstream/develop
+    (easy-as-pypi) $ git push origin HEAD
 
 5. Create a branch for local development. If you are working on an known issue,
    you may want to reference the Issue number in the branch name, e.g.,::
@@ -246,7 +247,7 @@ for local development.
 7. Throughout development, run tests and the linter -- and definitely before
    you submit a Pull Request.
 
-   |easy-as-pypi-getver|_ uses
+   |easy-as-pypi|_ uses
    |flake8|_ for linting,
    |pytest|_ for unit testing, and
    |tox|_ for verifying against the many versions of Python.
@@ -343,7 +344,7 @@ for local development.
 
 10. Finally,
     `submit a pull request
-    <https://github.com/tallybark/easy-as-pypi-getver/pulls>`_
+    <https://github.com/doblabs/easy-as-pypi/pulls>`_
     through the GitHub website.
 
     *Important:* Please rebase your code against ``develop`` and resolve
@@ -421,27 +422,27 @@ will print a control character sequence to the terminal, rather than
 showing the last command you ran.)
 
 * If you want to interact with the code at runtime,
-  run ``py.test`` directly (see next).
+  run ``pytest`` directly (see next).
 
 If you'd like to break into a debugger when a test fails, run ``pytest``
 directly and have it start the interactive Python debugger on errors::
 
-    $ py.test --pdb tests/
+    $ pytest --pdb tests/
 
 If you'd like a more complete stack trace when a test fails, add verbosity::
 
-    $ py.test -v tests/
+    $ pytest -v tests/
 
     # Or, better yet, two vees!
-    $ py.test -vv tests/
+    $ pytest -vv tests/
 
 If you'd like to run a specific test, use ``-k``, as mentioned above. E.g.,::
 
-    $ py.test -k test__repr__no_start_no_end tests/
+    $ pytest -k test__repr__no_start_no_end tests/
 
 Put it all together to quickly debug a broken test. ::
 
-    $ py.test --pdb -vv -k <test_name> tests/
+    $ pytest --pdb -vv -k <test_name> tests/
 
 You can also set breakpoints in the code with |pdb|_.
 Simply add a line like this:
@@ -482,7 +483,7 @@ by running various developer tasks.
       $ tox -e flake8
 
       # is just like running flake8:
-      $ flake8 setup.py easy_as_pypi_getver/ tests/
+      $ flake8 src/ tests/
 
 2. You can lint the docs easily with one or two commands.
 
@@ -715,5 +716,5 @@ Contributor Code of Conduct
 Please respect and adhere to the `Code of Conduct <code-of-conduct.html>`__
 (please also read it!).
 
-** 🐬 Happy 🐠 easy-as-pypi-getver 🦖 Hacking!! 🐡 **
+** 🐬 Happy 🐠 easy-as-pypi 🦖 Hacking!! 🐡 **
 

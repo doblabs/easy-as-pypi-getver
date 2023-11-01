@@ -1,51 +1,53 @@
-# This file exists within 'easy-as-pypi-getver':
-#
-#   https://github.com/tallybark/easy-as-pypi-getver#🔢
+# Author: Landon Bouma <https://tallybark.com/>
+# Project: https://github.com/doblabs/ <varies>
+# Pattern: https://github.com/doblabs/easy-as-pypi#🥧
+# License: MIT
 
-# Packaging — `make dist`.
-build/
-dist/
-*.egg-info/
-.eggs/
-
-# Python byte code.
-*.py[cod]
-__pycache__/
+# Packaging — `make build`.
+/dist/
 
 # Testing/CI tasks.
-.pytest_cache/
-.tox
+/.pytest_cache/
+/.tox/
 
 # Coverage — `make coverage`.
-.coverage
+/.coverage
 # Coverage — `make coverage-html`.
-htmlcov/
+/htmlcov/
 # Coverage — `codecov` https://codecov.io.
-coverage.xml
-
-# User's personal .ignore (e.g., .ignore.example).
-.ignore
-
-# Optional private DEV Makefile.
-Makefile.local
+/coverage.xml
 
 # Sphinx Docs — `make docs`.
-docs/_build/
+/docs/_build/
 # `make docs` generates at least two files for the API reference, an
-# index file (modules.rst), and an API reference (project-name.rst).
+# index file (modules.rst), and an API reference (project-name.rst),
+# e.g.,
 #   docs/modules.rst
-#   docs/easy_as_pypi_getver.rst
+#   docs/easy_as_pypi.rst
 # We could exclude these from the repo, because generated, but don't, so
 # that they'll appear in `git ls-files` diffs between projects that share
 # the Easy-as-PyPI boilerplate, which is helpful when syncing changes.
 #
-# You might also want to tweak the generated docs/easy_as_pypi_getver.rst file,
+# You might also want to tweak the generated docs/easy_as_pypi.rst file,
 # to, say, tweak the TOC. For an example, see:
-#   docs/easy-as-pypi-getver.rst
+#   docs/easy-as-pypi.rst
 
-# Test output for Vim quickfix — `make test-local`.
-.make.out
+# Bytecode.
+*.py[cod]
+__pycache__/
 
-# Translations files.
-*.mo
+# Editable pyproject.toml and .venv-<project> — `make develop`.
+/.pyproject-editable/
+.venv*/
+
+# DX artifacts.
+# - USYNC: Matches VIM_QUICKFIX_FLAKE8 from `make flake8`.
+#   - If you use a different path, add yours to .git/info/exclude
+/.vimquickfix.flake8
+# - USYNC: Matches VIM_QUICKFIX_PYTEST from `make test-local`.
+#   - If you use a different path, add yours to .git/info/exclude
+/.vimquickfix.pytest
+
+# User's personal .ignore (see .ignore.example).
+/.ignore
 

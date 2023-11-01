@@ -2,6 +2,8 @@
 Installation
 ############
 
+.. vim:tw=0:ts=3:sw=3:et:norl:nospell:ft=rst
+
 .. |virtualenv| replace:: ``virtualenv``
 .. _virtualenv: https://virtualenv.pypa.io/en/latest/
 
@@ -18,21 +20,27 @@ To install user-local, simply run::
 
 To install within a |virtualenv|_, try::
 
-    $ mkvirtualenv easy-as-pypi-getver
-    (easy-as-pypi-getver) $ pip install release-ghub-pypi
+    $ cd "$(mktemp -d)"
+
+    $ python3 -m venv .venv
+
+    $ . ./.venv/bin/activate
+
+    (easy-as-pypi-getver) $ pip install easy-as-pypi-getver
 
 To develop on the project, link to the source files instead::
 
     (easy-as-pypi-getver) $ deactivate
-    $ rmvirtualenv easy-as-pypi-getver
-    $ git clone git@github.com:tallybark/easy-as-pypi-getver.git
+    $ git clone git@github.com:doblabs/easy-as-pypi-getver.git
     $ cd easy-as-pypi-getver
-    $ mkvirtualenv -a $(pwd) --python=/usr/bin/python3.8 easy-as-pypi-getver
+    $ python3 -m venv easy-as-pypi-getver
+    $ . ./.venv/bin/activate
     (easy-as-pypi-getver) $ make develop
 
-After creating the virtual environment,
-to start developing from a fresh terminal, run |workon|_::
+After creating the virtual environment, it's easy to start
+developing from a fresh terminal::
 
-    $ workon easy-as-pypi-getver
+    $ cd easy-as-pypi-getver
+    $ . ./.venv/bin/activate
     (easy-as-pypi-getver) $ ...
 
