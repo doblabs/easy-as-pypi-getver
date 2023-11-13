@@ -22,7 +22,7 @@ readme = "README.rst"
 #   packages = [{include = "the_package_name", from = "src"}]
 
 homepage = "https://github.com/doblabs/easy-as-pypi-getver"
-repository = "https://github.com/doblabs/easy-as-pypi-getver"
+repository = "https://github.com/doblabs/easy-as-pypi-getver#🔢"
 documentation = "https://easy-as-pypi-getver.readthedocs.io/en/latest"
 
 # REFER: https://pypi.org/classifiers/
@@ -66,8 +66,10 @@ include = [
 
 # ***
 
-[tool.easy-as-pypi]
-copyright_years = "2020-2023"
+[tool.easy_as_pypi]
+author = "Landon Bouma <https://tallybark.com/>"
+copy_years_owner = "2020-2023 Landon Bouma"
+coc_contact_email = "tallybark+doblabs -at- gmail.com"
 
 # ***
 
