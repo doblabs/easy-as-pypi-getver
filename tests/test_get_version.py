@@ -26,14 +26,13 @@
 
 import os
 import re
-from pkg_resources import DistributionNotFound
+from unittest import mock
 
 import pytest
-from unittest import mock
+from pkg_resources import DistributionNotFound
 
 import easy_as_pypi_getver
 from easy_as_pypi_getver import get_version
-
 
 __package_name__ = "easy-as-pypi-getver"
 __import_token__ = "easy_as_pypi_getver"
