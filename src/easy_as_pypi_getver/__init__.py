@@ -53,14 +53,27 @@ def get_version(package_name, reference_file=None, include_head=False):
         return dist_version
 
     def version_installed():
+        # Ugh, this import is here and not file-level so that a test can mock
+        # "version". / There's gotta be a better approach....
+        from importlib.metadata import PackageNotFoundError, version
+
         # - This returns the version most recently pip-installed. That is, if
         #   you install local sources and have committed code but not run the
         #   pip-install again, this shows the older version.
-        from pkg_resources import get_distribution, DistributionNotFound
+        # - ORNOT/2023-11-13: Now that Poetry is the installer, including in
+        #   'editable' mode, the package will be versioned, e.g., here's
+        #   what I see importlib.metadata.version report is the version
+        #   of this repo, before I've even version-tagged it (and where
+        #   the pyproject.toml [tool.poetry] version = "0.0.0):
+        #     '0.0.0.post19.dev0+d7c69ea'.
         try:
-            return get_distribution(package_name).version
-        except DistributionNotFound:
+            return version(package_name)
+        except PackageNotFoundError:
             # This would be really weird, no?
+            # - ITWLD/2023-11-13: Per same-dated comment above, unlikely
+            #   that importlib would ever report this on an installed
+            #   package, whether 'editable' or not. It path should only
+            #   happen on a package that's *not* installed.
             return "<none!?>"
 
     def version_from_repo():
