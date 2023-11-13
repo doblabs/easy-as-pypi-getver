@@ -26,10 +26,10 @@
 
 import os
 import re
+from importlib.metadata import PackageNotFoundError
 from unittest import mock
 
 import pytest
-from pkg_resources import DistributionNotFound
 
 import easy_as_pypi_getver
 from easy_as_pypi_getver import get_version
@@ -99,8 +99,8 @@ class TestEasyAsPyPIGetVer:
             assert pkg_version.endswith(" (<none?!>)")
 
     def test_get_version_get_distribution_fails(self):
-        with mock.patch("pkg_resources.get_distribution") as get_distribution_mock:
-            get_distribution_mock.side_effect = DistributionNotFound()
+        with mock.patch("importlib.metadata.version") as version_mock:
+            version_mock.side_effect = PackageNotFoundError()
             pkg_version = get_version(__package_name__)
             assert pkg_version == "<none!?>"
 
