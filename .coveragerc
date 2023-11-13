@@ -1,9 +1,0 @@
-# vim:tw=0:ts=2:sw=2:et:norl:ft=dosini
-
-# This file exists within 'easy-as-pypi-getver':
-#
-#   https://github.com/tallybark/easy-as-pypi-getver#🔢
-
-[run]
-source=easy_as_pypi_getver
-
