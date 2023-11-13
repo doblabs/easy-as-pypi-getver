@@ -35,12 +35,11 @@ import easy_as_pypi_getver
 from easy_as_pypi_getver import get_version
 
 
-__package_name__ = 'easy-as-pypi-getver'
-__import_token__ = 'easy_as_pypi_getver'
+__package_name__ = "easy-as-pypi-getver"
+__import_token__ = "easy_as_pypi_getver"
 
 
 class TestEasyAsPyPIGetVer:
-
     # *** Test API
 
     def test_get_version_requires_package_name(self):
@@ -53,11 +52,11 @@ class TestEasyAsPyPIGetVer:
         # (lb): Note that get_version replies differently if setuptools_scm
         # is available or not. And note also version (at least for DEVs) will
         # often be a non-release version, e.g., '3.0.2.dev9+gfba2058.d20200401'.
-        assert re.match(r'^[0-9]+\.[0-9]+\.[a-z0-9+]+$', pkg_version)
+        assert re.match(r"^[0-9]+\.[0-9]+\.[a-z0-9+]+$", pkg_version)
 
     def assert_is_version_string_and_head(self, pkg_version):
         # E.g., '3.2.4.dev5+gd15b68dc.d20201209 (3.2.4.dev16+g2bd6b40e)'.
-        assert re.match(r'^[0-9]+\.[0-9]+.* (.*)$', pkg_version)
+        assert re.match(r"^[0-9]+\.[0-9]+.* (.*)$", pkg_version)
 
     # *** Tests
 
@@ -74,14 +73,16 @@ class TestEasyAsPyPIGetVer:
     def test_get_version_include_head_known_postfix(self, mocker):
         # 2020-12-21: '0.1.dev3+gd19055b (foo)'
         mocker.patch.object(
-            easy_as_pypi_getver, '_version_from_tags', return_value='foo',
+            easy_as_pypi_getver,
+            "_version_from_tags",
+            return_value="foo",
         )
         pkg_version = get_version(__package_name__, include_head=True)
         self.assert_is_version_string_and_head(pkg_version)
         # The repo version is appended in (parentheses).
-        assert pkg_version.endswith(' (foo)')
+        assert pkg_version.endswith(" (foo)")
 
-    _version_from_tags_object = '{}._version_from_tags'.format(__import_token__)
+    _version_from_tags_object = "{}._version_from_tags".format(__import_token__)
 
     def test_get_version_without_setuptools_scm(self):
         with mock.patch(self._version_from_tags_object) as import_scm_mock:
@@ -96,16 +97,15 @@ class TestEasyAsPyPIGetVer:
             import_scm_mock.side_effect = LookupError()
             pkg_version = get_version(__package_name__, include_head=True)
             self.assert_is_version_string_and_head(pkg_version)
-            assert pkg_version.endswith(' (<none?!>)')
+            assert pkg_version.endswith(" (<none?!>)")
 
     def test_get_version_get_distribution_fails(self):
-        with mock.patch('pkg_resources.get_distribution') as get_distribution_mock:
+        with mock.patch("pkg_resources.get_distribution") as get_distribution_mock:
             get_distribution_mock.side_effect = DistributionNotFound()
             pkg_version = get_version(__package_name__)
-            assert pkg_version == '<none!?>'
+            assert pkg_version == "<none!?>"
 
     def test_get_version_include_head_no_git_found(self, mocker):
-        mocker.patch.object(os.path, 'exists', return_value=False)
+        mocker.patch.object(os.path, "exists", return_value=False)
         pkg_version = get_version(__package_name__, include_head=True)
         self.assert_is_version_string_headless(pkg_version)
-
