@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # vim:tw=0:ts=4:sw=4:et:norl:ft=python:nospell
 # Author: Landon Bouma <https://tallybark.com/>
-# Project: https://github.com/doblabs/ <varies>
+# Project: https://github.com/<varies>
 # Pattern: https://github.com/doblabs/easy-as-pypi#🥧
 # License: MIT
+
+"""Sphinx docs builder."""
 
 # Boilerplate documentation build configuration file,
 # (Originally) created by sphinx-quickstart on Tue Jul 9 22:26:36 2013
@@ -18,10 +20,10 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-# import datetime
 import os
-# import shlex
 import sys
+from collections.abc import MutableMapping
+
 from pkg_resources import get_distribution
 
 # import sphinx_rtd_theme
@@ -30,7 +32,7 @@ from pkg_resources import get_distribution
 # directory, add these directories to sys.path here. If the directory is
 # relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+# sys.path.insert(0, os.path.abspath('.'))
 
 # Get the project root dir (parent dir of docs/).
 cwd = os.getcwd()
@@ -53,7 +55,7 @@ def get_meta() -> MutableMapping:
     # toml_path = os.path.join(os.path.dirname(__file__), "..", "pyproject.toml")
     toml_path = os.path.join(project_root, "pyproject.toml")
 
-    with open(toml_path, 'rb') as fopen:
+    with open(toml_path, "rb") as fopen:
         pyproject = tomli.load(fopen)
 
     return pyproject
@@ -102,7 +104,7 @@ project_dist = meta["tool"]["poetry"]["name"]
 # - If that's not the case for you, change this, e.g.,
 #
 #     package_name = 'python_import_name'
-package_name = project_dist.replace('-', '_')
+package_name = project_dist.replace("-", "_")
 
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 # ┃                                                                     ┃
@@ -110,13 +112,36 @@ package_name = project_dist.replace('-', '_')
 
 # Pull the GH org from the repository URL.
 # E.g., project_ghuser = 'doblabs'
-project_ghuser = os.path.basename(os.path.dirname(meta["tool"]["poetry"]["repository"]))
+repository_url = ""
+try:
+    repository_url = meta["tool"]["poetry"]["repository"]
+except KeyError:
+    try:
+        repository_url = meta["tool"]["poetry"]["urls"]["repository"]
+    except KeyError:
+        try:
+            repository_url = meta["tool"]["poetry"]["homepage"]
+        except KeyError:
+            try:
+                repository_url = meta["tool"]["poetry"]["urls"]["homepage"]
+            except KeyError:
+                print(
+                    "\nERROR: docs/conf.py cannot find pyproject.toml "
+                    "'repository' or 'homepage' URL"
+                )
+
+                raise
+project_ghuser = os.path.basename(os.path.dirname(repository_url))
 project_ghrepo = project_dist
 
 # E.g., project_auth = 'Landon Bouma <email>'
 project_auth = ",".join(meta["tool"]["poetry"]["authors"])
 # E.g., project_copy = '2020-2023, Landon Bouma <email>'
-project_copy = f"{meta['tool']['easy-as-pypi']['copyright_years']}, {project_auth}"
+try:
+    copy_years_owner = meta["tool"]["easy_as_pypi"]["copy_years_owner"]
+    project_copy = f"{copy_years_owner.split(' ')[0]}, {project_auth}"
+except KeyError:
+    project_copy = project_auth
 
 # project_orgn = 'Tally Bark LLC'
 project_orgn = meta["tool"]["poetry"]["maintainers"]
@@ -130,7 +155,7 @@ project_orgn = meta["tool"]["poetry"]["maintainers"]
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 exclude_patterns = [
-    '_build',
+    "_build",
     # Note that docs/readme.rst merely includes the top-level README.rst.
     # - E.g., docs/readme.rst contains a single directive:
     #     .. include:: ../README.rst
@@ -140,7 +165,7 @@ exclude_patterns = [
     #         WARNING: document isn't included in any toctree
     # - Note that README.rst is still included probably (to be honest,
     #   I'm not really sure what's going on =).
-    'readme.rst',
+    "readme.rst",
 ]
 
 # ***
@@ -149,7 +174,7 @@ exclude_patterns = [
 
 # Used below by latex_documents, man_pages, and texinfo_documents,
 # none of which we generate from Sphinx sources.
-project_docinfo = '{} Documentation'.format(project_dist)
+project_docinfo = "{} Documentation".format(project_dist)
 
 # Option for HTMLHelp output, used by htmlhelp_basename below.
 # - This value seems like it'd be used for HTML output:
@@ -163,9 +188,9 @@ project_docinfo = '{} Documentation'.format(project_dist)
 #   appended, e.g., for a project named "my-python-project", then:
 #
 #     project_htmlhelp_basename = 'MyPythonProjectdoc'
-project_htmlhelp_basename = ''.join(
-    [word.capitalize() for word in project_dist.split('-')]
-) + 'doc'
+project_htmlhelp_basename = (
+    "".join([word.capitalize() for word in project_dist.split("-")]) + "doc"
+)
 
 # Used by texinfo_documents, below, for Texinfo output.
 #  project_texinfo = 'One line description of project.'
@@ -177,15 +202,15 @@ project_texinfo = meta["tool"]["poetry"]["description"]
 # -- General configuration ---------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-#needs_sphinx = '1.0'
+# needs_sphinx = '1.0'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 # Ref:
 #   http://www.sphinx-doc.org/en/master/usage/extensions/index.html
 extensions = [
-    'sphinx.ext.autodoc',
-
+    "sphinx.ext.autodoc",
+    #
     # For hyperlinks, e.g., :ref:`My Section Title`.
     # ISOFF/2023-05-22: I don't see any diff with this option on or off,
     # when when autosectionlabel enabled, if the same reST header title
@@ -195,20 +220,20 @@ extensions = [
     #
     #  'sphinx.ext.autosectionlabel',
     #
-    'sphinx.ext.coverage',
-
+    "sphinx.ext.coverage",
+    #
     # (lb): pedantic_timedelta includes intersphinx.
     #  'sphinx.ext.intersphinx',
-
+    #
     # Google style docstrings
     # https://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
     # https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
     # https://google.github.io/styleguide/pyguide.html#383-functions-and-methods
-    'sphinx.ext.napoleon',
-
-    'sphinx.ext.todo',
-
-    'sphinx.ext.viewcode',
+    "sphinx.ext.napoleon",
+    #
+    "sphinx.ext.todo",
+    #
+    "sphinx.ext.viewcode",
 ]
 
 # CXREF: easy-as-pypi: See `sphinx_docs_inject` in Maketasks.sh.
@@ -236,26 +261,25 @@ extensions = [
 #  }
 
 # Prevent non local image warnings from showing.
-suppress_warnings = ['image.nonlocal_uri']
+suppress_warnings = ["image.nonlocal_uri"]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = ".rst"
 
 # The encoding of source files.
-#source_encoding = 'utf-8-sig'
+# source_encoding = 'utf-8-sig'
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 # General information about the project.
 project = project_dist
 copyright = project_copy
 author = project_auth
 
-# (lb): Using setuptools_scm magic, per
 # easy-as-pypi uses poetry-dynamic-versioning, so no need to maintain
 # the version here; we can grab it from the package.
 # - This approach originally inspired by setuptools_scm (pre-Poetry):
@@ -269,18 +293,18 @@ author = project_auth
 release = get_distribution(package_name).version
 # The short X.Y version.
 # - (lb): One place I see `release` used — to name the browser page.
-version = '.'.join(release.split('.')[:2])
+version = ".".join(release.split(".")[:2])
 # version = meta["tool"]["poetry"]["version"]
 
 # The language for content autogenerated by Sphinx. Refer to documentation
 # for a list of supported languages.
-#language = None
+# language = None
 
 # There are two options for replacing |today|: either, you set today to
 # some non-false value, then it is used:
-#today = ''
+# today = ''
 # Else, today_fmt is used as the format for a strftime call.
-#today_fmt = '%B %d, %Y'
+# today_fmt = '%B %d, %Y'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -293,28 +317,28 @@ version = '.'.join(release.split('.')[:2])
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
-#default_role = None
+# default_role = None
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
-#add_function_parentheses = True
+# add_function_parentheses = True
 
 # If true, the current module name will be prepended to all description
 # unit titles (such as .. function::).
-#add_module_names = True
+# add_module_names = True
 
 # If true, sectionauthor and moduleauthor directives will be shown in the
 # output. They are ignored by default.
-#show_authors = False
+# show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 # A list of ignored prefixes for module index sorting.
-#modindex_common_prefix = []
+# modindex_common_prefix = []
 
 # If true, keep warnings as "system message" paragraphs in the built
 # documents.
-#keep_warnings = False
+# keep_warnings = False
 
 # -- Options for HTML output -------------------------------------------
 
@@ -325,7 +349,7 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.
 # Ref:
 #   https://sphinx-rtd-theme.readthedocs.io/en/latest/configuring.html
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 
 # 2020-03-29: There's a deprecation warning fixed upstream last year
 # but the Sphinx package has not been released to PyPI since Feb, 2019.
@@ -334,26 +358,28 @@ html_theme = 'sphinx_rtd_theme'
 #     sphinx_rtd_theme/search.html:21: RemovedInSphinx30Warning: To modify
 #     script_files in the theme is deprecated. Please insert a <script> tag
 #     directly in your theme instead.
-html_theme_path = ["_themes", ]
+html_theme_path = [
+    "_themes",
+]
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see the
 # documentation.
 html_theme_options = {
     # Table of contents options.
-    'collapse_navigation': True,
-    'sticky_navigation': True,
-    'navigation_depth': 4,
-    'includehidden': True,
-    'titles_only': False,
+    "collapse_navigation": True,
+    "sticky_navigation": True,
+    "navigation_depth": 4,
+    "includehidden": True,
+    "titles_only": False,
     # Miscellaneous options.
     # 'canonical_url': '',
     # 'analytics_id': 'UA-XXXXXXX-1',  #  Provided by Google in your dashboard
-    'logo_only': False,
-    'display_version': True,
+    "logo_only": False,
+    "display_version": True,
     # prev_next_buttons_location: [bottom], top, both, or None.
-    'prev_next_buttons_location': 'bottom',
-    'style_external_links': False,
+    "prev_next_buttons_location": "bottom",
+    "style_external_links": False,
     # vcs_pageview_mode (upper-left navbar home button):
     #   With display_github: [blob], edit, or raw.
     #   #'vcs_pageview_mode': '',
@@ -363,18 +389,26 @@ html_theme_options = {
 
 # https://docs.readthedocs.io/en/latest/vcs.html?highlight=conf_py_path
 html_context = {
-    # Enable the "Edit in GitHub" link within the header of each page.
-    'display_github': True,
+    # Enable the "Edit on GitHub" link within the header of each page.
+    "display_github": True,
     # Set the following variables to generate the resulting github URL for each page.
     # Format Template: https://{{ github_host|default("github.com") }}
     #   /{{ github_user }}/{{ github_repo }}/blob
     #   /{{ github_version }}{{ conf_py_path }}{{ pagename }}{{ suffix }}
-    'github_user': project_ghuser,
-    'github_repo': project_ghrepo,
-    # Branch name.
-    'github_version': 'develop/',
+    "github_user": project_ghuser,
+    "github_repo": project_ghrepo,
+    # This branch name controls the *Edit on GitHub* on RTD page headers.
+    # USYNC: The main/default GH branch: 'release'.
+    # - MAYBE: Replace hardcoded value with {{ template.value }},
+    #          or maybe use `git rev-parse --abbrev-ref=loose HEAD`.
+    #    import subprocess
+    #    completed_proc = subprocess.run([
+    #       'git', 'rev-parse', '--abbrev-ref=loose', 'HEAD'
+    #    ], capture_output=True)
+    #    completed_proc.stdout.decode().strip()
+    "github_version": "release/",
     # Path in the checkout to the docs root.
-    'conf_py_path': 'docs/',
+    "conf_py_path": "docs/",
 }
 
 # File-wide metadata.
@@ -383,22 +417,22 @@ html_context = {
 #   github_url = 'https://github.com/doblabs/easy-as-pypi'
 
 # Add any paths that contain custom themes here, relative to this directory.
-#html_theme_path = []
+# html_theme_path = []
 # (lb): I've seen this path in some projects, but I think it's only
 # necessary if you install sphinx_rtd_theme manually (not via pip).
 #   html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-#html_title = None
+# html_title = None
 
 # A shorter title for the navigation bar.  Default is the same as
 # html_title.
-#html_short_title = None
+# html_short_title = None
 
 # The name of an image file (relative to this directory) to place at the
 # top of the sidebar.
-#html_logo = None
+# html_logo = None
 # The logo could be placed in the navigation area, but it's distracting.
 # Best left at the bottom of the README instead.
 #   html_logo = 'assets/hfpt-logo-lrg.png'
@@ -406,7 +440,7 @@ html_context = {
 # The name of an image file (within the static path) to use as favicon
 # of the docs.  This file should be a Windows icon file (.ico) being
 # 16x16 or 32x32 pixels large.
-#html_favicon = None
+# html_favicon = None
 # (lb): Set your project logo thusly:
 #  html_favicon = 'assets/easy-as-pypi_logo.png'
 
@@ -414,63 +448,63 @@ html_context = {
 # here, relative to this directory. They are copied after the builtin
 # static files, so a file named "default.css" will overwrite the builtin
 # "default.css".
-#html_static_path = ['_static']
+# html_static_path = ['_static']
 # (lb): include docs/_static/images/*.png,
 #       if you added, say, a project logo.
 #  html_static_path = ['_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page
 # bottom, using the given strftime format.
-#html_last_updated_fmt = '%b %d, %Y'
+# html_last_updated_fmt = '%b %d, %Y'
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
-#html_use_smartypants = True
+# html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
 # (lb): These work with alabaster, but are ignored by sphinx_rtd_theme.
 html_sidebars = {
-    '**': [
-        'about.html',
-        'navigation.html',
-        'relations.html',
-        'searchbox.html',
+    "**": [
+        "about.html",
+        "navigation.html",
+        "relations.html",
+        "searchbox.html",
         # (lb): To donate, or not to donate.
-        'donate.html',
+        "donate.html",
     ]
 }
 
 # Additional templates that should be rendered to pages, maps page names
 # to template names.
-#html_additional_pages = {}
+# html_additional_pages = {}
 
 # If false, no module index is generated.
-#html_domain_indices = True
+# html_domain_indices = True
 
 # If false, no index is generated.
-#html_use_index = True
+# html_use_index = True
 
 # If true, the index is split into individual pages for each letter.
-#html_split_index = False
+# html_split_index = False
 
 # If true, links to the reST sources are added to the pages.
-#html_show_sourcelink = True
+# html_show_sourcelink = True
 
 # If true, "Created using Sphinx" is shown in the HTML footer.
 # Default is True.
-#html_show_sphinx = True
+# html_show_sphinx = True
 
 # If true, "(C) Copyright ..." is shown in the HTML footer.
 # Default is True.
-#html_show_copyright = True
+# html_show_copyright = True
 
 # If true, an OpenSearch description file will be output, and all pages
 # will contain a <link> tag referring to it.  The value of this option
 # must be the base URL from which the finished HTML is served.
-#html_use_opensearch = ''
+# html_use_opensearch = ''
 
 # This is the file name suffix for HTML files (e.g. ".xhtml").
-#html_file_suffix = None
+# html_file_suffix = None
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
@@ -482,10 +516,8 @@ htmlhelp_basename = project_htmlhelp_basename
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #'papersize': 'letterpaper',
-
     # The font size ('10pt', '11pt' or '12pt').
     #'pointsize': '10pt',
-
     # Additional stuff for the LaTeX preamble.
     #'preamble': '',
 }
@@ -493,49 +525,53 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass
 # [howto/manual]).
-latex_documents = [(
-    'index',
-    '{}.tex'.format(package_name),
-    project_docinfo,
-    project_orgn,
-    'manual',
-), ]
+latex_documents = [
+    (
+        "index",
+        "{}.tex".format(package_name),
+        project_docinfo,
+        project_orgn,
+        "manual",
+    ),
+]
 
 # The name of an image file (relative to this directory) to place at
 # the top of the title page.
-#latex_logo = None
+# latex_logo = None
 
 # For "manual" documents, if this is true, then toplevel headings
 # are parts, not chapters.
-#latex_use_parts = False
+# latex_use_parts = False
 
 # If true, show page references after internal links.
-#latex_show_pagerefs = False
+# latex_show_pagerefs = False
 
 # If true, show URL addresses after external links.
-#latex_show_urls = False
+# latex_show_urls = False
 
 # Documents to append as an appendix to all manuals.
-#latex_appendices = []
+# latex_appendices = []
 
 # If false, no module index is generated.
-#latex_domain_indices = True
+# latex_domain_indices = True
 
 
 # -- Options for manual page output ------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(
-    'index',
-    package_name,
-    project_docinfo,
-    [project_orgn],
-    1,
-), ]
+man_pages = [
+    (
+        "index",
+        package_name,
+        project_docinfo,
+        [project_orgn],
+        1,
+    ),
+]
 
 # If true, show URL addresses after external links.
-#man_show_urls = False
+# man_show_urls = False
 
 
 # -- Options for Texinfo output ----------------------------------------
@@ -543,27 +579,29 @@ man_pages = [(
 # Grouping the document tree into Texinfo files. List of tuples
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
-texinfo_documents = [(
-    'index',
-    package_name,
-    project_docinfo,
-    project_orgn,
-    package_name,
-    project_texinfo,
-    'Miscellaneous',
-), ]
+texinfo_documents = [
+    (
+        "index",
+        package_name,
+        project_docinfo,
+        project_orgn,
+        package_name,
+        project_texinfo,
+        "Miscellaneous",
+    ),
+]
 
 # Documents to append as an appendix to all manuals.
-#texinfo_appendices = []
+# texinfo_appendices = []
 
 # If false, no module index is generated.
-#texinfo_domain_indices = True
+# texinfo_domain_indices = True
 
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
-#texinfo_show_urls = 'footnote'
+# texinfo_show_urls = 'footnote'
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
-#texinfo_no_detailmenu = False
+# texinfo_no_detailmenu = False
 
 # -- Custom options for easy-as-pypi and related projects --------------
 
@@ -581,4 +619,7 @@ linkcheck_anchors_ignore = [
     #   `<https://easy_as_pypi.readthedocs.io/en/latest/contributing.html#get-started>`__
     "get-started",
 ]
-
+# 2023-11-01: linkcheck now reports broken on local links, not sure why.
+#   sphinx-build --version: 6.2.1. See also:
+#     ../.venv-easy-as-pypi/lib/python3.11/site-packages/sphinx/__init__.py
+linkcheck_ignore = ["code-of-conduct.html"]

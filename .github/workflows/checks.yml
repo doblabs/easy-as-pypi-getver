@@ -11,14 +11,16 @@
 #        - Except skip 'linkcheck', which usually fails before
 #          docs are published. Chicken before the egg.
 
-name: Run checks
+name: Checks — Runner
 
 on:
   workflow_call:
 
+# ***
+
 env:
-  # USYNC: https://github.com/actions/python-versions/releases
-  # - USYNC: PYTHON_VERSION usage in .github/workflows/*.
+  # TRACK: https://github.com/actions/python-versions/releases
+  # USYNC: workflows/ (PYTHON_VERSION), tox.ini (basepython), Makefile (VENV_PYVER).
   PYTHON_VERSION: 3.11
 
   # USAGE: Set RUN_ONLY to restrict to specific job, e.g.,
@@ -34,6 +36,43 @@ env:
 
 jobs:
 
+  # *** Project Task Disablement
+
+  disablement-detector:
+    name: Inspect Makefile.project for opt-outs
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Use an intermediate Makefile to probe project Makefile.
+      # - As mentioned above, skipping:  EAPP_MAKEFILE_LINKCHECK_DISABLE
+      - name: Check if project disabled this task
+        id: read-environs
+        run: |
+
+          for var_name in \
+            "EAPP_MAKEFILE_DOCS_DISABLE" \
+            "EAPP_MAKEFILE_PYDOCSTYLE_DISABLE" \
+          ; do
+            var_value="$(make -f <(
+              echo -e \
+                "-include Makefile.project\nprint_value:\n\t@echo \$(${var_name})"
+            ) print_value)"
+
+            environ_value=$([ -z "${var_value}" ] && echo "false" || echo "true")
+
+            echo "${var_name}=${environ_value}"
+
+            echo "${var_name}=${environ_value}" >> "${GITHUB_OUTPUT}"
+          done
+
+    outputs:
+      EAPP_MAKEFILE_DOCS_DISABLE: ${{ steps.read-environs.outputs.EAPP_MAKEFILE_DOCS_DISABLE }}
+      EAPP_MAKEFILE_PYDOCSTYLE_DISABLE: ${{ steps.read-environs.outputs.EAPP_MAKEFILE_PYDOCSTYLE_DISABLE }}
+
   # *** TEST
 
   test:
@@ -44,8 +83,18 @@ jobs:
       fail-fast: true
       matrix:
         platform: ['ubuntu-latest']
-        # USYNC: https://github.com/actions/python-versions/releases
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12.0-alpha.7']
+        # TRACK: https://github.com/actions/python-versions/releases
+        # LATER/2023-11-04: Latest 3.13.0-alpha.1 not working yet:
+        #   Poetry installation failed.
+        #   See /home/runner/work/easy-as-pypi/easy-as-pypi/poetry-installer-error-6onruz7x.log
+        #         for error logs.
+        #   Error: Process completed with exit code 1.
+        # - Reenable this eventually:
+        #  python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13.0-alpha.1']
+        # USYNC: Update GitHub Branch protection rules when you modify this list! E.g.,
+        #   https://github.com/doblabs/easy-as-pypi/settings/branch_protection_rules/37797347
+        # USYNC: checks.yml (here), tox.ini (envlist), Makefile (pyenv-install-pys).
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
 
         # DUNNO/2022-10-04: GitHub doesn't always spin up macOS and Windows
         # immediately ("Waiting for runner to start this task..."). And on
@@ -61,9 +110,9 @@ jobs:
         #     Use matrix.include to add specific platform-Python combinations.
         include:
           - platform: 'macos-latest'
-            python-version: '3.11'
+            python-version: '3.12'
           - platform: 'windows-latest'
-            python-version: '3.11'
+            python-version: '3.12'
 
     # Set the default shell, required for "windows-latest".
     defaults:
@@ -77,7 +126,7 @@ jobs:
 
       # CXREF: https://github.com/actions/checkout
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # CXREF: https://github.com/actions/setup-python
       - name: Set up Python ${{ matrix.python-version }}
@@ -161,7 +210,7 @@ jobs:
             }}
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --with test
+        run: poetry install --no-interaction --with test,project_test
 
       - name: Test
         run: |
@@ -186,7 +235,7 @@ jobs:
   #
   #    on:
   #      workflow_run:
-  #        workflows: ["Run checks"]
+  #        workflows: ["Checks — Runner"]
   #        types:
   #          - completed
 
@@ -201,7 +250,7 @@ jobs:
         if: ${{ env.RUN_ONLY && env.RUN_ONLY != github.job }}
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install poetry
         run: pipx install poetry
@@ -214,7 +263,7 @@ jobs:
           cache: 'poetry'
 
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root --with lint
+        run: poetry install --no-interaction --no-root --with lint,project_lint
 
       - name: Run black
         run: poetry run black $SOURCE_DIR --check
@@ -232,7 +281,7 @@ jobs:
         if: ${{ env.RUN_ONLY && env.RUN_ONLY != github.job }}
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         id: setup-python
@@ -286,7 +335,7 @@ jobs:
             }}
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root --with lint
+        run: poetry install --no-interaction --no-root --with lint,project_lint
 
       - name: Run flake8
         run: poetry run make flake8
@@ -309,7 +358,7 @@ jobs:
         if: ${{ env.RUN_ONLY && env.RUN_ONLY != github.job }}
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install poetry
         run: pipx install poetry
@@ -322,7 +371,7 @@ jobs:
           cache: 'poetry'
 
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root --with lint
+        run: poetry install --no-interaction --no-root --with lint,project_lint
 
       - name: Run isort
         run: poetry run make isort_check_only
@@ -339,7 +388,7 @@ jobs:
 
       # CXREF: https://github.com/actions/checkout
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # CXREF: https://github.com/actions/setup-python
       - name: Set up Python ${{ env.PYTHON_VERSION }}
@@ -374,7 +423,7 @@ jobs:
 
       # CXREF: https://github.com/actions/checkout
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install poetry
         run: pipx install poetry
@@ -421,13 +470,17 @@ jobs:
   docs:
     runs-on: ubuntu-latest
 
+    needs: disablement-detector
+
+    if: needs.disablement-detector.outputs.EAPP_MAKEFILE_DOCS_DISABLE != 'true'
+
     steps:
       - name: Fail if RUN_ONLYing another job
         run: exit 1
         if: ${{ env.RUN_ONLY && env.RUN_ONLY != github.job }}
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         id: setup-python
@@ -472,7 +525,7 @@ jobs:
             }}
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --with docs --extras readthedocs
+        run: poetry install --no-interaction --with docs,project_docs --extras readthedocs
 
       - name: Docs build
         run: poetry run make _docs_html_skip_venv
@@ -488,7 +541,7 @@ jobs:
         if: ${{ env.RUN_ONLY && env.RUN_ONLY != github.job }}
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         id: setup-python
@@ -533,7 +586,7 @@ jobs:
             }}
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root --with dist
+        run: poetry install --no-interaction --no-root --with dist,project_dist
 
       # Verifies bdist and sdist archives.
       - name: Dist check
@@ -550,7 +603,7 @@ jobs:
         if: ${{ env.RUN_ONLY && env.RUN_ONLY != github.job }}
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         id: setup-python
@@ -597,13 +650,17 @@ jobs:
   pydocstyle:
     runs-on: ubuntu-latest
 
+    needs: disablement-detector
+
+    if: needs.disablement-detector.outputs.EAPP_MAKEFILE_PYDOCSTYLE_DISABLE != 'true'
+
     steps:
       - name: Fail if RUN_ONLYing another job
         run: exit 1
         if: ${{ env.RUN_ONLY && env.RUN_ONLY != github.job }}
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         id: setup-python
@@ -648,7 +705,7 @@ jobs:
             }}
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root --with docstyle
+        run: poetry install --no-interaction --no-root --with docstyle,project_docstyle
 
       - name: Docstring check
         run: poetry run make pydocstyle
@@ -672,7 +729,7 @@ jobs:
         if: ${{ env.RUN_ONLY && env.RUN_ONLY != github.job }}
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         id: setup-python
@@ -717,7 +774,7 @@ jobs:
             }}
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --with test
+        run: poetry install --no-interaction --with test,project_test
 
       - name: Coverage compute
         run: poetry run make _coverage_xml
@@ -752,7 +809,7 @@ jobs:
         if: ${{ env.RUN_ONLY && env.RUN_ONLY != github.job }}
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install poetry
         run: pipx install poetry
@@ -765,7 +822,7 @@ jobs:
           cache: 'poetry'
 
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root --with lint
+        run: poetry install --no-interaction --no-root --with lint,project_lint
 
       - name: Run yamllint
         run: poetry run yamllint .
