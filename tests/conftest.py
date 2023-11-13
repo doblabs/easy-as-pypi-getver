@@ -25,7 +25,6 @@
 """Test fixtures (none) for the ``easy-as-pypi-getver`` package tests."""
 
 import pytest
-
 from click.testing import CliRunner
 
 import easy_as_pypi_getver
