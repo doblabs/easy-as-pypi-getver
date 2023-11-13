@@ -5,9 +5,9 @@
 
 ---
 
-name: Release build to GitHub
+name: Publish release to GitHub
 
-# Invoked from "Run checks" (checks.yml) workflow via job "uses" directive.
+# Invoked from "Checks — Runner" (checks.yml) workflow via job "uses" directive.
 # - Running from checks means this workflow never has to check state -- we
 #   know the tag is a version tag, and that the tag commit has passed checks.
 
@@ -18,9 +18,11 @@ on:
         required: true
         type: string
 
+# ***
+
 env:
-  # USYNC: https://github.com/actions/python-versions/releases
-  # - USYNC: PYTHON_VERSION usage in .github/workflows/*.
+  # TRACK: https://github.com/actions/python-versions/releases
+  # USYNC: workflows/ (PYTHON_VERSION), tox.ini (basepython), Makefile (VENV_PYVER).
   PYTHON_VERSION: 3.11
 
 jobs:
@@ -44,10 +46,6 @@ jobs:
         if: steps.check-is-version-tag.outputs.is_version_tag == 'true'
         run: echo "Version tag detected"
 
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        if: steps.check-is-version-tag.outputs.is_version_tag == 'true'
-
     outputs:
       is_version_tag: ${{ steps.check-is-version-tag.outputs.is_version_tag }}
 
@@ -62,7 +60,7 @@ jobs:
 
     permissions:
       # For `gh release view`, else you see: "HTTP 403: Resource not accessible
-      # by integration (https://api.github.com/repos/pydob/easy-as-pypi/releases)"
+      # by integration (https://api.github.com/repos/doblabs/easy-as-pypi/releases)"
       contents: 'write'
 
     steps:
@@ -86,12 +84,13 @@ jobs:
       # ***
 
       # Checkout the default branch and check the version tag is on HEAD.
-      # - This is mostly a paranoid check. We could support releasing
+      # - This is an overly suspicious check. We could support releasing
       #   whatever commit was tagged, but until a developer presents us
       #   with a compelling use case for such a situation, we don't
       #   support it.
+
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.repository.default_branch }}
           # Fetch all history, so rev-parse HEAD is real HEAD.

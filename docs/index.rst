@@ -5,7 +5,7 @@
 .. vim:tw=0:ts=3:sw=3:et:norl:nospell:ft=rst
 
 .. .. |easy-as-pypi-getver| replace:: ``easy-as-pypi-getver``
-.. .. _easy-as-pypi-getver: https://github.com/doblabs/easy-as-pypi-getver
+.. .. _easy-as-pypi-getver: https://github.com/doblabs/easy-as-pypi-getver#🔢
 
 .. Documentation for |easy-as-pypi-getver|_.
 
