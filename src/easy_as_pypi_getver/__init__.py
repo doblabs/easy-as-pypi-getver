@@ -32,6 +32,10 @@ __all__ = (
     #  '_version_from_tags',
 )
 
+# This version is substituted on poetry-build by poetry-dynamic-versioning.
+# - Consequently, __version__ remains empty when installed in 'editable' mode.
+__version__ = ""
+
 
 def get_version(package_name, reference_file=None, include_head=False):
     """Returns the installed package version, or '<none>'.
