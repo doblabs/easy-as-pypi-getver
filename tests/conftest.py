@@ -34,8 +34,9 @@ import easy_as_pypi_getver
 @pytest.fixture
 def runner():
     """Provide a convenient fixture to simulate execution of (sub-) commands."""
+
     def runner(args=[], **kwargs):
         env = {}
         return CliRunner().invoke(easy_as_pypi_getver.cli, args, env=env, **kwargs)
-    return runner
 
+    return runner
