@@ -51,7 +51,9 @@ class TestEasyAsPyPIGetVer:
         # (lb): Note that get_version replies differently if setuptools_scm
         # is available or not. And note also version (at least for DEVs) will
         # often be a non-release version, e.g., '3.0.2.dev9+gfba2058.d20200401'.
-        assert re.match(r"^[0-9]+\.[0-9]+\.[a-z0-9+]+$", pkg_version)
+        # 2023-11-13: setuptools_scm.get_version() on unversioned 'editable'
+        # install: e.g., '0.0.0.post19.dev0+d7c69ea'.
+        assert re.match(r"^[0-9]+\.[0-9]+\.[a-z0-9+\.]+$", pkg_version)
 
     def assert_is_version_string_and_head(self, pkg_version):
         # E.g., '3.2.4.dev5+gd15b68dc.d20201209 (3.2.4.dev16+g2bd6b40e)'.
