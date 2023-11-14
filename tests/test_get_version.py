@@ -38,7 +38,6 @@ class TestEasyAsPyPIGetVer:
         assert re.match(r"^[0-9]+\.[0-9]+\.[a-z0-9+\.]+$", pkg_version)
 
     def assert_is_version_string_and_head(self, pkg_version):
-        # E.g., '3.2.4.dev5+gd15b68dc.d20201209 (3.2.4.dev16+g2bd6b40e)'.
         assert re.match(r"^[0-9]+\.[0-9]+.* (.*)$", pkg_version)
 
     # *** Tests

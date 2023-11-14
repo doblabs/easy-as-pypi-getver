@@ -14,9 +14,32 @@ __all__ = (
     #  '_version_from_tags',
 )
 
-# This version is substituted on poetry-build by poetry-dynamic-versioning.
-# - Consequently, __version__ remains empty when installed in 'editable' mode.
+# This empty version value will be populated temporarily during poetry-build
+# by poetry-dynamic-versioning.
+# - Consequently, __version__ remains empty when installed in 'editable' mode
+#   and accessed at runtime. So query get_version() instead, which uses
+#   importlib to fetch the package version from when it was installed.
 __version__ = ""
+
+# - Note a few subtle differences between importlib and setuptools_scm:
+#   - importlib.metadata.version returns the package version that was
+#       installed, which might include Git tags, but the version is static
+#       and won't track any repo changes.
+#   - setuptools_scm, on the other hand, uses the latest commit to format
+#       the version.
+# - For example, let's say a repo has 27 commits and no version tag,
+#   then you might see these versions:
+#     - importlib:      0.0.0.post27.dev0+7c3df03 ("0.0.0" from pyproject.toml)
+#     - setuptools_scm: 0.1.dev27+g7c3df03.d20231114 (starting itself at "0.1")
+#   - Note that both versions indicate the distance (27) since the last
+#     version (or since the first commit, in this case), and each version
+#     contains the Git ref (7c3df03) of the latest commit.
+#   - Now let's suppose you add 5 commits, Now you might see the versions:
+#     - importlib:      0.0.0.post27.dev0+7c3df03 (unchanged)
+#     - setuptools_scm: 0.1.dev32+g187abdc.d20231114 (changed)
+#     As mentioned, importlib's version is still the unchanged package
+#     version, whereas setuptools_scm indicates the new distance (32)
+#     and a different Git ref (187abdc).
 
 
 def get_version(package_name, reference_file=None, include_head=False):
@@ -42,23 +65,10 @@ def get_version(package_name, reference_file=None, include_head=False):
         # "version". / There's gotta be a better approach....
         from importlib.metadata import PackageNotFoundError, version
 
-        # - This returns the version most recently pip-installed. That is, if
-        #   you install local sources and have committed code but not run the
-        #   pip-install again, this shows the older version.
-        # - ORNOT/2023-11-13: Now that Poetry is the installer, including in
-        #   'editable' mode, the package will be versioned, e.g., here's
-        #   what I see importlib.metadata.version report is the version
-        #   of this repo, before I've even version-tagged it (and where
-        #   the pyproject.toml [tool.poetry] version = "0.0.0):
-        #     '0.0.0.post19.dev0+d7c69ea'.
+        # E.g, "1.2.3.post19.dev0+d7c69ea".
         try:
             return version(package_name)
         except PackageNotFoundError:
-            # This would be really weird, no?
-            # - ITWLD/2023-11-13: Per same-dated comment above, unlikely
-            #   that importlib would ever report this on an installed
-            #   package, whether 'editable' or not. It path should only
-            #   happen on a package that's *not* installed.
             return PACKAGE_NOT_FOUND_VERSION
 
     def version_from_repo():
