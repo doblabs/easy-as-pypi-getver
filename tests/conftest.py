@@ -10,6 +10,7 @@ import sys
 
 
 def get_version(root):
+    """Fake setuptools_scm.get_version."""
     return "0.1.dev32+g187abdc.d20231114"
 
 
