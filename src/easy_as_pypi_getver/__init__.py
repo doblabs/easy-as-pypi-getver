@@ -26,6 +26,9 @@ def get_version(package_name, reference_file=None, include_head=False):
     use a method to avoid incurring startup costs if the version is not needed.
     """
 
+    PACKAGE_NOT_FOUND_VERSION = "<none!?>"
+    INVALID_REPOSITORY_VERSION = "<none?!>"
+
     def resolve_vers():
         dist_version = version_installed()
         if include_head:
@@ -56,7 +59,7 @@ def get_version(package_name, reference_file=None, include_head=False):
             #   that importlib would ever report this on an installed
             #   package, whether 'editable' or not. It path should only
             #   happen on a package that's *not* installed.
-            return "<none!?>"
+            return PACKAGE_NOT_FOUND_VERSION
 
     def version_from_repo():
         try:
@@ -67,7 +70,7 @@ def get_version(package_name, reference_file=None, include_head=False):
             return ""
         except LookupError:
             # Path containing .git/ not a repo after all.
-            return "<none?!>"
+            return INVALID_REPOSITORY_VERSION
 
     return resolve_vers()
 
