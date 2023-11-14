@@ -74,8 +74,7 @@ def get_version(package_name, reference_file=None, include_head=False):
     def version_from_repo():
         try:
             return _version_from_tags(reference_file)
-        # Note: ModuleNotFoundError in Py3.6+, so using less specific ImportError.
-        except ImportError:
+        except ModuleNotFoundError:
             # No setuptools_scm package installed.
             return ""
         except LookupError:
@@ -102,6 +101,7 @@ def _version_from_tags(reference_file):
             # Get version from setuptools_scm, and git tags.
             # This is similar to a developer running, e.g.,
             #   python setup.py --version
+            # Raises LookupError.
             return setuptools_scm.get_version(root=cur_path)
     # No .git/ found. Package probably installed to site-packages/.
     return ""

@@ -68,7 +68,7 @@ class TestEasyAsPyPIGetVer:
 
     def test_get_version_without_setuptools_scm(self):
         with mock.patch(self._version_from_tags_object) as import_scm_mock:
-            import_scm_mock.side_effect = ImportError()
+            import_scm_mock.side_effect = ModuleNotFoundError()
             pkg_version = get_version(__package_name__, include_head=True)
             # The result is still a version, but the user's repo version
             # will not be postfixed in (parentheses).
