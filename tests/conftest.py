@@ -5,3 +5,14 @@
 # Copyright (c) © 2018-2023 Landon Bouma. All Rights Reserved.
 
 """Test fixtures (none) for the ``easy-as-pypi-getver`` package tests."""
+
+import sys
+
+
+def get_version(root):
+    return "0.1.dev32+g187abdc.d20231114"
+
+
+module_fake = type(sys)("setuptools_scm")
+module_fake.get_version = get_version
+sys.modules["setuptools_scm"] = module_fake
