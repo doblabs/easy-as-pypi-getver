@@ -915,6 +915,7 @@ apply_canon_permissions_to_follower () {
   local local_file="$1"
   local canon_file_absolute="$2"
 
+  # Copy file modes.
   command chmod --reference="${canon_file_absolute}" "${local_file}"
 }
 
@@ -1014,7 +1015,9 @@ remove_faithful_file () {
   # obvious options. Forgo, refrain from, go without. Foregone, went w/out.
   local what_happn="foregone"
 
-  if [ -f "${local_file}" ]; then
+  local git_status="$(git status --porcelain=v1 -- "${local_file}")"
+
+  if [ -f "${local_file}" ] || [ "${git_status}" = " D ${local_file}" ]; then
     # This 8-letter word is easier. The file perished. Becuz we perished it.
     what_happn="perished"
 
