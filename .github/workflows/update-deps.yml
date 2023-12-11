@@ -45,7 +45,7 @@ on:
         type: choice
         options:
           - 'ours'
-          - 'all'
+          - 'full'
           # ISOFF: There's no 'skip' option when this workflow is run
           #        directly from the GitHub Actions page.
           #        - If user wants to skip poetry-update, they should
@@ -60,7 +60,7 @@ on:
         # below, defaults to inputs.cascade-updatedeps.
         default: ''
 
-      # Note if bump-part is "alpha" or "least" *and* cascade-dispatch is
+      # Note if bump-part is "alpha" *and* cascade-dispatch is
       # true, then include-prerelease-lock is implicitly true.
       include-prerelease-lock:
         description: 'Include pre-release lock'
@@ -73,7 +73,6 @@ on:
         options:
           - 'alpha'
           - 'patch'
-          - 'least'
           - 'skip'
         default: 'skip'
 
@@ -91,7 +90,7 @@ on:
       #    description: 'Cascade poetry-update'
       #    type: choice
       #    options:
-      #      - 'all'
+      #      - 'full'
       #      - 'ours'
       #      - 'skip'
       #    default: 'skip'
@@ -134,6 +133,10 @@ env:
   CASCADE_VERSIONING: ${{
     inputs.bump-part
     || 'skip' }}
+  PRERELEASE: ${{
+    inputs.bump-part == 'alpha'
+    || inputs.include-prerelease-lock
+    }}
 
 jobs:
   # `env.` doesn't work from within `with:`, so kluge it.
@@ -143,9 +146,11 @@ jobs:
       - run: |
           echo "CASCADE_UPDATEDEPS: ${CASCADE_UPDATEDEPS}"
           echo "CASCADE_VERSIONING: ${CASCADE_VERSIONING}"
+          echo "PRERELEASE: ${PRERELEASE}"
     outputs:
       cascade-updatedeps: ${{ env.CASCADE_UPDATEDEPS }}
       cascade-versioning: ${{ env.CASCADE_VERSIONING }}
+      prelease: ${{ env.PRERELEASE }}
 
   # Here we check for branch tags (ci-inhibit-forever) and HEAD tags the
   # user might've set deliberately on this project. Because this is the
@@ -154,6 +159,9 @@ jobs:
   wrangle-ci-tags:
     name: Wrangle (read) CI tags
     uses: ./.github/workflows/ci-tags-wrangle.yml
+    needs: [env-outputs]
+    with:
+      prerelease: ${{ needs.env-outputs.outputs.prelease == 'true' }}
 
   poetry-update:
     name: Update lock deps
@@ -168,11 +176,8 @@ jobs:
     # Also check the cascade-updatedeps input, either from upstream
     # repository_dispatch, or from user-initiated workflow_call (via
     # sprout-updates.yml, which exposes the workflow_dispatch inputs).
-    if: true
-      && needs.env-outputs.outputs.cascade-updatedeps != 'skip'
-      && needs.wrangle-ci-tags.outputs.old-inhibit-cascade == 'false'
-      && needs.wrangle-ci-tags.outputs.old-inhibit-forever == 'false'
-      && needs.wrangle-ci-tags.outputs.old-cascade-updatedeps != 'skip'
+    if: needs.env-outputs.outputs.cascade-updatedeps != 'skip'
+      || needs.wrangle-ci-tags.outputs.old-cascade-updatedeps != 'skip'
 
     runs-on: ubuntu-latest
 
@@ -180,7 +185,11 @@ jobs:
       - name: Checkout this repo
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.repository.default_branch }}
+          # If pre-release, use alternative branch if defined.
+          ref: ${{
+            needs.env-outputs.outputs.prelease == 'true'
+            && vars.PRERELEASE_BRANCH
+            || github.event.repository.default_branch }}
           # Use the user token, not ${{ github.token }}, so that
           # git-push triggers workflow events. (Though TBH I don't
           # remember if it's the token setting here or the one on
@@ -230,7 +239,7 @@ jobs:
           # tag created, after checks pass, and after package is released and
           # smoke-tested).
           UPDEPS_CASCADE_INHIBIT: ${{ inputs.cascade-dispatch && 'false' || 'true' }}
-          # Whether to update all deps, or just "ours".
+          # Whether to update all deps ("full"), or just "ours".
           # - This value is passed to the next project in the cascade, too.
           UPDEPS_CASCADE_UPDATEDEPS: ${{ env.CASCADE_UPDATEDEPS }}
           # Whether to version, and how, after PR is approved.
@@ -258,8 +267,8 @@ jobs:
     steps:
       # yamllint disable rule:line-length
       - run: |
-          echo "needs.old-inhibit-cascade: ${{ needs.wrangle-ci-tags.outputs.old-inhibit-cascade }}"
-          echo "needs.old-inhibit-forever: ${{ needs.wrangle-ci-tags.outputs.old-inhibit-forever }}"
+          echo "wrangle-ci-tags.old-inhibit-cascade: ${{ needs.wrangle-ci-tags.outputs.old-inhibit-cascade }}"
+          echo "wrangle-ci-tags.old-inhibit-forever: ${{ needs.wrangle-ci-tags.outputs.old-inhibit-forever }}"
           #
           echo "needs.poetry-update.result: ${{ needs.poetry-update.result }}"
           echo "needs.poetry-update.outputs.new_pr_num: ${{ needs.poetry-update.outputs.new_pr_num }}"
@@ -280,8 +289,21 @@ jobs:
           #   echo "inputs.cascade-dispatch != '': ${{ inputs.cascade-dispatch != '' }}"
           #   echo "inputs.cascade-dispatch || foo: ${{ inputs.cascade-dispatch || 'foo' }}"
           #
-          echo "needs.cascade-updatedeps: ${{ needs.env-outputs.outputs.cascade-updatedeps }}"
-          echo "needs.cascade-versioning: ${{ needs.env-outputs.outputs.cascade-versioning }}"
+          echo "wrangle-ci-tags.old-cascade-updatedeps: ${{ needs.wrangle-ci-tags.outputs.old-cascade-updatedeps }}"
+          echo "needs.env-outputs.cascade-updatedeps: ${{ needs.env-outputs.outputs.cascade-updatedeps }}"
+          echo "needs.env-outputs.cascade-versioning: ${{ needs.env-outputs.outputs.cascade-versioning }}"
+
+          # Trace the next job's complicated `if`.
+          # - REFER: Cannot escape GHA brackets, so output as text, ha.
+          #     https://github.com/orgs/community/discussions/26621
+          echo "if: ${{ '\${{' }} !cancelled()
+              && (${{ needs.env-outputs.outputs.cascade-versioning }} != 'skip'
+                  || (${{ inputs.cascade-dispatch }}
+                      && ${{ needs.wrangle-ci-tags.outputs.old-inhibit-cascade }} == 'false'
+                      && ${{ needs.wrangle-ci-tags.outputs.old-inhibit-forever }} == 'false')
+              && (${{ needs.poetry-update.result }} == 'skipped'
+                  || (${{ needs.poetry-update.result }} == 'success'
+                      && ${{ needs.poetry-update.outputs.new_pr_num }} == '')) }}"
       # yamllint enable rule:line-length
 
   # If no PR, move on to versioning here. And if versioning being skipped,
@@ -297,16 +319,16 @@ jobs:
     needs: [env-outputs, wrangle-ci-tags, poetry-update]
 
     if: ${{ !cancelled()
-        && needs.wrangle-ci-tags.outputs.old-inhibit-cascade == 'false'
-        && needs.wrangle-ci-tags.outputs.old-inhibit-forever == 'false'
+        && (needs.env-outputs.outputs.cascade-versioning != 'skip'
+            || (inputs.cascade-dispatch
+                && needs.wrangle-ci-tags.outputs.old-inhibit-cascade == 'false'
+                && needs.wrangle-ci-tags.outputs.old-inhibit-forever == 'false'))
         && (needs.poetry-update.result == 'skipped'
             || (needs.poetry-update.result == 'success'
-                && needs.poetry-update.outputs.new_pr_num == ''))
-        && inputs.cascade-dispatch
-      }}
+                && needs.poetry-update.outputs.new_pr_num == '')) }}
 
     with:
-      cascade-dispatch: true
+      cascade-dispatch: ${{ inputs.cascade-dispatch }}
       cascade-updatedeps: ${{ needs.env-outputs.outputs.cascade-updatedeps }}
       cascade-versioning: ${{ needs.env-outputs.outputs.cascade-versioning }}
       from-upstream: ${{ inputs.from-upstream }}
