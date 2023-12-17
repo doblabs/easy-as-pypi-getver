@@ -43,11 +43,8 @@ __version__ = ""
 
 
 def get_version(package_name, reference_file=None, include_head=False):
-    """Return the installed package version, or '<none>'.
-
-    In lieu of always setting __version__ -- and always loading pkg_resources --
-    use a method to avoid incurring startup costs if the version is not needed.
-    """
+    """Return the installed package version, or '<none>'."""
+    # Note we lazy-load imports hereunder, though unsure that matters for built-ins.
     PACKAGE_NOT_FOUND_VERSION = "<none!?>"
     INVALID_REPOSITORY_VERSION = "<none?!>"
 
