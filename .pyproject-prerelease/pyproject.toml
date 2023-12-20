@@ -511,6 +511,10 @@ builtins = [
 
 [tool.isort]
 
+# As suggested (though not that I see it changes anything):
+# https://pycqa.github.io/isort/docs/configuration/black_compatibility.html
+profile = "black"
+
 include_trailing_comma = true
 
 # USYNC: (max) line length shared among: black, flake8, isort, doc8, yamllint.
@@ -757,7 +761,7 @@ Faker = ">=18.7.0"
 #
 #   https://pypi.org/project/pytest-faker
 #   https://github.com/pytest-dev/pytest-faker
-#  pytest-faker >= 2.0.0
+#  pytest-faker = ">=2.0.0"
 
 # - "Generates random data for your tests"
 #
